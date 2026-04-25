@@ -1,0 +1,121 @@
+@startuml Robustez - CU001 Iniciar Sesión MOPGIMED
+
+top to bottom direction
+
+title "Diagrama de Robustez — CU001: Iniciar Sesión\nMOPGIMED · Sistema Inteligente de Inventario Farmacéutico"
+
+skinparam {
+  backgroundColor    #FFFFFF
+  shadowing          false
+  defaultFontName    Segoe UI
+  defaultFontSize    10
+  defaultFontColor   #1E293B
+  ArrowColor         #B91C1C
+  ArrowThickness     1.5
+  ArrowFontSize      9
+  ArrowFontColor     #475569
+}
+
+skinparam actor {
+  BorderColor        #B91C1C
+  BackgroundColor    #FFF1F2
+  FontColor          #7F1D1D
+  FontStyle          Bold
+  FontSize           11
+}
+
+skinparam boundary {
+  BorderColor        #1D4ED8
+  BackgroundColor    #EFF6FF
+  FontColor          #1E3A8A
+  FontSize           10
+}
+
+skinparam control {
+  BorderColor        #B45309
+  BackgroundColor    #FFFBEB
+  FontColor          #78350F
+  FontSize           10
+}
+
+skinparam entity {
+  BorderColor        #065F46
+  BackgroundColor    #ECFDF5
+  FontColor          #064E3B
+  FontSize           10
+}
+
+skinparam package {
+  BorderColor        #CBD5E1
+  BackgroundColor    #F8FAFC
+  FontStyle          Bold
+  FontSize           11
+  FontColor          #334155
+}
+
+' ─────────────────────────────────────────
+'  ACTOR
+' ─────────────────────────────────────────
+actor "Personal\ndel Hospital" as ACTOR
+
+' ─────────────────────────────────────────
+'  FILA 1 — Entidades (arriba, ancho completo)
+' ─────────────────────────────────────────
+package "Entidad  —  Información guardada en el sistema" as PKG_E {
+  entity "Registro del Personal\n──────────────────\nUsuario · Contraseña · Cargo\nNombre · Estado (Activo/Inactivo)" as E1
+  entity "Permisos por Cargo\n──────────────────\nAdmin · Farmacia · Jefatura\n(cada uno ve distintas opciones)" as E2
+  entity "Historial de Actividad\n──────────────────\nFecha · Hora · Usuario\nque ingresó al sistema" as E3
+  E1 -[hidden]right-> E2
+  E2 -[hidden]right-> E3
+}
+
+' ─────────────────────────────────────────
+'  FILA 2 — Frontera y Control lado a lado
+' ─────────────────────────────────────────
+
+' Columna izquierda
+package "Frontera  —  Pantallas que ve el personal" as PKG_B {
+  boundary "Formulario de\nInicio de Sesión\n──────────────\nCampos: usuario\ny contraseña" as B1
+  boundary "Aviso de\nAcceso Denegado\n──────────────\nUsuario incorrecto,\nclave inválida o\nusuario inactivo" as B3
+  boundary "Panel Principal\npersonalizado\n──────────────\nMenú con las opciones\nsegún el cargo asignado" as B2
+  B1 -[hidden]down-> B3
+  B3 -[hidden]down-> B2
+}
+
+' Columna derecha
+package "Control  —  Procesos que ejecuta el sistema automáticamente" as PKG_C {
+  control "Verificador\nde Identidad\n────────────\nRevisa que el usuario exista,\nque la clave sea correcta\ny que esté Activo" as C1
+  control "Cargador de Opciones\npor Cargo\n────────────\nPrepara el menú y secciones\nque le corresponden:\nAdmin / Farmacia / Jefatura" as C2
+  control "Registrador\nde Actividad\n────────────\nAnota quién ingresó,\nfecha y hora exacta\nen el historial" as C3
+  C1 -[hidden]down-> C2
+  C2 -[hidden]down-> C3
+}
+
+' ─────────────────────────────────────────
+'  Posicionamiento: E arriba, B y C al lado
+' ─────────────────────────────────────────
+PKG_E -[hidden]down-> PKG_B
+PKG_B -[hidden]right-> PKG_C
+
+' ─────────────────────────────────────────
+'  FLUJO — sin cruces de líneas
+' ─────────────────────────────────────────
+ACTOR --> B1 : 1. Abre el sistema e\ningresa su usuario\ny contraseña
+
+B1   --> C1  : 2. Envía los datos\npara verificación
+
+C1   --> E1  : 3. Busca al usuario\nen el registro del personal
+
+C1   --> B3  : 4a. Datos incorrectos\no usuario inactivo
+B3   --> ACTOR : muestra el aviso\nde error
+
+C1   --> C2  : 4b. Acceso válido:\ninicia carga de permisos
+C2   --> E2  : 5. Consulta qué opciones\ncorresponden al cargo
+
+C1   --> C3  : 6. Notifica el ingreso
+C3   --> E3  : 7. Guarda fecha, hora\ny usuario en el historial
+
+C2   --> B2  : 8. Abre el panel\npersonalizado listo para usar
+B2   --> ACTOR : 9. El personal navega\nel sistema con su\nmenú personalizado
+
+@enduml

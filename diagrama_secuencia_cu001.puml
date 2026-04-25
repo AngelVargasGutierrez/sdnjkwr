@@ -1,0 +1,77 @@
+@startuml Secuencia CU001 MOPGIMED
+
+title "Diagrama de Secuencia — CU001: Iniciar Sesión\nMOPGIMED · Sistema Inteligente de Inventario Farmacéutico"
+
+autonumber
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceArrowColor #B91C1C
+skinparam sequenceArrowThickness 1.5
+skinparam sequenceLifeLineBorderColor #B91C1C
+skinparam sequenceGroupBorderColor #B91C1C
+skinparam sequenceGroupBackgroundColor #FFF5F5
+skinparam sequenceGroupFontStyle Bold
+skinparam noteFontSize 9
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #B45309
+
+skinparam actor {
+  BackgroundColor #FFF1F2
+  BorderColor #B91C1C
+  FontColor #7F1D1D
+  FontStyle Bold
+}
+
+skinparam participant {
+  BackgroundColor #FFFFFF
+  BorderColor #64748B
+  FontColor #1E293B
+  FontSize 10
+}
+
+skinparam box {
+  FontStyle Bold
+  FontSize 11
+}
+
+actor "Personal del Hospital" as ACTOR
+
+box "Frontera — Pantallas que ve el personal" #EFF6FF
+  participant "Pantalla de\nInicio de Sesion" as B1
+  participant "Aviso de\nAcceso Denegado" as B3
+  participant "Panel Principal\npersonalizado" as B2
+end box
+
+box "Control — Procesos internos del sistema" #FFFBEB
+  participant "Verificador\nde Identidad" as C1
+  participant "Cargador de Opciones\npor Cargo" as C2
+  participant "Registrador\nde Actividad" as C3
+end box
+
+box "Entidad — Informacion guardada" #ECFDF5
+  participant "Registro\ndel Personal" as E1
+  participant "Permisos\npor Cargo" as E2
+  participant "Historial\nde Actividad" as E3
+end box
+
+ACTOR -> B1 : Abre el sistema e ingresa\nsu usuario y contrasena
+B1 -> C1 : Envia los datos para verificacion
+C1 -> E1 : Busca al usuario en el\nregistro del personal
+E1 --> C1 : Devuelve nombre, cargo\ny estado del usuario
+
+alt Usuario o contrasena incorrectos / usuario Inactivo
+  C1 -> B3 : Los datos no son validos
+  B3 -> ACTOR : Muestra el aviso de error,\nel personal corrige e intenta de nuevo
+
+else El usuario existe, la clave es correcta y esta Activo
+  C1 -> C2 : Identidad confirmada,\ncarga las opciones del cargo
+  C2 -> E2 : Consulta que puede ver\ny hacer segun su cargo
+  E2 --> C2 : Devuelve el menu\ncorrespondiente al cargo
+  C1 -> C3 : Notifica que el personal\nacaba de ingresar al sistema
+  C3 -> E3 : Guarda la fecha, hora\ny nombre del usuario que ingreso
+  C2 -> B2 : Abre el sistema\ncon el menu personalizado
+  B2 -> ACTOR : El personal ve su panel\ny empieza a usar el sistema
+end
+
+@enduml

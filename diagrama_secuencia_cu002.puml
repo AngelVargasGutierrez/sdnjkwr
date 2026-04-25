@@ -1,0 +1,99 @@
+@startuml Secuencia CU002 MOPGIMED
+
+title "Diagrama de Secuencia — CU002: Gestionar Medicamentos\nMOPGIMED · Sistema Inteligente de Inventario Farmacéutico"
+
+autonumber
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceArrowColor #B91C1C
+skinparam sequenceArrowThickness 1.5
+skinparam sequenceLifeLineBorderColor #B91C1C
+skinparam sequenceGroupBorderColor #B91C1C
+skinparam sequenceGroupBackgroundColor #FFF5F5
+skinparam sequenceGroupFontStyle Bold
+skinparam noteFontSize 9
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #B45309
+
+skinparam actor {
+  BackgroundColor #FFF1F2
+  BorderColor #B91C1C
+  FontColor #7F1D1D
+  FontStyle Bold
+}
+
+skinparam participant {
+  BackgroundColor #FFFFFF
+  BorderColor #64748B
+  FontColor #1E293B
+  FontSize 10
+}
+
+skinparam box {
+  FontStyle Bold
+  FontSize 11
+}
+
+actor "Personal Autorizado\n(Farmacia / Admin)" as ACTOR
+
+box "Frontera — Pantallas que ve el personal" #EFF6FF
+  participant "Lista de\nMedicamentos" as B1
+  participant "Formulario del\nMedicamento" as B2
+  participant "Confirmacion de\nEliminacion" as B3
+  participant "Mensaje\nde Resultado" as B4
+end box
+
+box "Control — Procesos internos del sistema" #FFFBEB
+  participant "Buscador y\nCargador de Lista" as C1
+  participant "Validador,\nGuardador y Eliminador" as C2
+  participant "Registrador\nde Actividad" as C3
+end box
+
+box "Entidad — Informacion guardada" #ECFDF5
+  participant "Fichas de\nMedicamentos" as E1
+  participant "Catalogo de Labs\ny Categorias" as E2
+  participant "Historial\nde Actividad" as E3
+end box
+
+group Ver y buscar medicamentos
+  ACTOR -> B1 : Accede a la lista\nde medicamentos
+  B1 -> C1 : Solicita cargar o\nbuscar medicamentos
+  C1 -> E1 : Consulta las fichas\nguardadas en el sistema
+  E1 --> C1 : Devuelve la lista\nde medicamentos
+  C1 --> B1 : Muestra la lista actualizada
+  B1 --> ACTOR : El personal ve todos\nlos medicamentos registrados
+end
+
+group Registrar nuevo medicamento o editar uno existente
+  ACTOR -> B2 : Abre el formulario para\nregistrar o editar
+  B2 -> C2 : Envia los datos\ndel formulario
+  C2 -> E2 : Verifica laboratorio\ny categoria validos
+  E2 --> C2 : Confirma los datos del catalogo
+
+  alt Datos incompletos o incorrectos
+    C2 --> B4 : Informa campos\nmal o faltantes
+    B4 --> ACTOR : El personal corrige\ne intenta de nuevo
+  else Datos correctos
+    note over C2 : El sistema calcula automaticamente\nsi el stock es Normal, Bajo o Critico
+    C2 -> E1 : Guarda o actualiza\nla ficha del medicamento
+    C2 -> C3 : Notifica el cambio realizado
+    C3 -> E3 : Registra quien hizo el cambio,\nque cambio y cuando
+    C2 --> B4 : Operacion exitosa
+    B4 --> ACTOR : El personal ve la confirmacion\ndel medicamento guardado
+  end
+end
+
+group Eliminar un medicamento
+  ACTOR -> B3 : Solicita eliminar\nun medicamento
+  B3 --> ACTOR : Pide confirmacion:\nesta seguro?
+  ACTOR -> B3 : Confirma la eliminacion
+  B3 -> C2 : Envia la orden de eliminacion
+  C2 -> E1 : Elimina la ficha\ndel medicamento
+  C2 -> C3 : Notifica la eliminacion
+  C3 -> E3 : Registra quien elimino,\nque y cuando
+  C2 --> B4 : Eliminacion completada
+  B4 --> ACTOR : El personal ve que el\nmedicamento fue eliminado
+end
+
+@enduml

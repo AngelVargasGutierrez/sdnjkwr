@@ -1,0 +1,173 @@
+@startuml DiagramaCasosDeUso MOPGIMED
+
+title "Diagrama de Casos de Uso — MOPGIMED\nSistema Inteligente de Inventario Farmacéutico"
+
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam ArrowColor #B91C1C
+skinparam ArrowThickness 1.2
+skinparam ArrowFontSize 9
+skinparam ArrowFontColor #475569
+
+skinparam actor {
+  BorderColor    #B91C1C
+  BackgroundColor #FFF1F2
+  FontColor      #7F1D1D
+  FontStyle      Bold
+  FontSize       11
+}
+
+skinparam usecase {
+  BorderColor    #475569
+  BackgroundColor #FFFFFF
+  FontColor      #1E293B
+  FontSize       10
+}
+
+skinparam package {
+  BorderColor    #94A3B8
+  BackgroundColor #F8FAFC
+  FontStyle      Bold
+  FontSize       12
+  FontColor      #334155
+}
+
+' ════════════════════════════════════════
+'   ACTORES
+' ════════════════════════════════════════
+actor "Usuario" as Usuario
+actor "Administrador" as Admin
+actor "Almacenero" as Alm
+actor "TecnicoFarmacia" as TF
+actor "JefeFarmacia" as JF
+
+' Jerarquia de actores
+Usuario <|-- Admin
+Usuario <|-- Alm
+Usuario <|-- TF
+Usuario <|-- JF
+
+' ════════════════════════════════════════
+'   PAQUETE 1: Acceso al Sistema
+' ════════════════════════════════════════
+package "Acceso al Sistema" as PKG_AUTH #EFF6FF {
+  usecase "Autenticar Usuario" as UC_AUTH
+}
+
+' ════════════════════════════════════════
+'   PAQUETE 2: Administracion de Usuarios
+' ════════════════════════════════════════
+package "Administracion de Usuarios" as PKG_ADMIN #FFFBEB {
+  usecase "Gestionar Usuario" as UC_GU
+  usecase "Asignar Rol" as UC_AR
+  usecase "Modificar Usuario" as UC_MU
+  usecase "Visualizar Historial\nde Acciones" as UC_VH
+}
+
+' ════════════════════════════════════════
+'   PAQUETE 3: Gestion de Medicamentos
+' ════════════════════════════════════════
+package "Gestion de Medicamentos" as PKG_MED #ECFDF5 {
+  usecase "Gestionar Medicamentos" as UC_GM
+  usecase "Buscar Medicamento con IA" as UC_BIA
+  usecase "Filtrar por Laboratorio" as UC_FL
+  usecase "Registrar Medicamento" as UC_RM
+  usecase "Ingresar Datos de Lote" as UC_IDL
+  usecase "Modificar Medicamento" as UC_MOD
+  usecase "Consultar Medicamento" as UC_CM
+}
+
+' ════════════════════════════════════════
+'   PAQUETE 4: Alertas y Notificaciones
+' ════════════════════════════════════════
+package "Alertas y Notificaciones" as PKG_ALERT #FFF1F2 {
+  usecase "Visualizar Bandeja\nde Notificaciones" as UC_VBN
+  usecase "Notificar Alertas" as UC_NA
+  usecase "Visualizar Medicamentos\npor Vencer" as UC_VMV
+  usecase "Filtrar Medicamentos\npor Vencer" as UC_FMV
+  usecase "Visualizar Semaforo\nde Stock" as UC_VS
+}
+
+' ════════════════════════════════════════
+'   PAQUETE 5: Reportes y Analisis
+' ════════════════════════════════════════
+package "Reportes y Analisis" as PKG_REP #F5F3FF {
+  usecase "Generar Reporte General" as UC_GRG
+  usecase "Filtrar Reporte General" as UC_FRG
+  usecase "Generar Reporte\nIngresos y Salidas" as UC_GRIS
+  usecase "Visualizar Medicamentos\nde Mayor Rotacion" as UC_VMR
+  usecase "Generar Reporte\nde Rotacion" as UC_GRR
+  usecase "Filtrar por Tiempo" as UC_FT
+  usecase "Exportar Reporte a Excel" as UC_EXP
+}
+
+' ════════════════════════════════════════
+'   PAQUETE 6: Dashboard Analitico
+' ════════════════════════════════════════
+package "Dashboard Analitico" as PKG_DASH #FFF7ED {
+  usecase "Visualizar Dashboard" as UC_VD
+  usecase "Visualizar Dashboard\nInteligente" as UC_VDI
+}
+
+' ════════════════════════════════════════
+'   CONEXIONES ACTOR → CASO DE USO
+' ════════════════════════════════════════
+
+' Todos los actores autentican
+Usuario --> UC_AUTH
+
+' Administrador
+Admin --> UC_GU
+Admin --> UC_VH
+Admin --> UC_GM
+Admin --> UC_MOD
+
+' Almacenero
+Alm --> UC_GM
+Alm --> UC_MOD
+
+' TecnicoFarmacia
+TF --> UC_CM
+TF --> UC_VBN
+TF --> UC_VMV
+TF --> UC_VS
+
+' JefeFarmacia
+JF --> UC_VBN
+JF --> UC_GRG
+JF --> UC_GRIS
+JF --> UC_VMR
+JF --> UC_VD
+JF --> UC_VDI
+JF --> UC_VMV
+JF --> UC_VS
+
+' ════════════════════════════════════════
+'   RELACIONES <<include>> Y <<extend>>
+' ════════════════════════════════════════
+
+' Administracion de Usuarios
+UC_GU  ..> UC_AR  : <<include>>
+UC_GU  ..> UC_MU  : <<include>>
+
+' Gestion de Medicamentos
+UC_GM  ..> UC_BIA : <<include>>
+UC_GM  ..> UC_RM  : <<include>>
+UC_BIA ..> UC_FL  : <<include>>
+UC_RM  ..> UC_IDL : <<include>>
+UC_MOD ..> UC_RM  : <<extend>>
+
+' Alertas y Notificaciones
+UC_VBN ..> UC_NA  : <<include>>
+UC_VMV ..> UC_FMV : <<include>>
+
+' Reportes y Analisis
+UC_GRG  ..> UC_FRG : <<include>>
+UC_GRG  ..> UC_EXP : <<extend>>
+UC_GRIS ..> UC_EXP : <<extend>>
+UC_VMR  ..> UC_FT  : <<include>>
+UC_VMR  ..> UC_GRR : <<include>>
+
+@enduml

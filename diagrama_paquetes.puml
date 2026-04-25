@@ -1,0 +1,98 @@
+@startuml MOPGIMED Diagrama de Paquetes
+
+top to bottom direction
+
+title "MOPGIMED — Diagrama de Paquetes\nTiempo de Análisis"
+
+skinparam {
+  backgroundColor #FFFFFF
+  shadowing false
+  defaultFontName Segoe UI
+  defaultFontSize 10
+  defaultFontColor #1E293B
+  PackageBackgroundColor #FFF5F5
+  PackageBorderColor #B91C1C
+  PackageBorderThickness 2
+  PackageFontSize 11
+  PackageFontStyle Bold
+  PackageFontColor #7F1D1D
+  ComponentBackgroundColor #FFFFFF
+  ComponentBorderColor #FECACA
+  ComponentFontSize 10
+  ComponentFontColor #374151
+  ArrowColor #B91C1C
+  ArrowThickness 1.5
+  ArrowFontSize 9
+  ArrowFontColor #64748B
+}
+
+package "MOPGIMED  ·  Sistema Inteligente de Inventario Farmacéutico" as ROOT {
+
+  ' ═══════════════════════════════════════════
+  '  BLOQUE 1 — Pantallas
+  ' ═══════════════════════════════════════════
+  package "Pantallas del Sistema\n(Lo que el personal ve y usa)" as UI {
+    package "Acceso al Sistema"       as P1 { [Inicio de sesión y control de permisos] }
+    package "Panel Principal"         as P2 { [Resumen general e indicadores clave]    }
+    package "Gestión de Medicamentos" as P3 { [Lista y registro de medicamentos]       }
+    package "Control de Inventario"   as P4 { [Semáforo de stock y vencimientos]       }
+    package "Notificaciones y Alertas"as P5 { [Centro de alertas por prioridad]        }
+    package "Análisis Inteligente"    as P6 { [Predicción de demanda y tendencias]     }
+    package "Reportes"                as P7 { [Reportes generales y exportación]       }
+    package "Administración"          as P8 { [Gestión de personal e historial]        }
+
+    P1 -[hidden]down-> P2
+    P2 -[hidden]down-> P3
+    P3 -[hidden]down-> P4
+    P4 -[hidden]down-> P5
+    P5 -[hidden]down-> P6
+    P6 -[hidden]down-> P7
+    P7 -[hidden]down-> P8
+  }
+
+  ' ═══════════════════════════════════════════
+  '  BLOQUE 2 — Motor
+  ' ═══════════════════════════════════════════
+  package "Motor de Procesamiento\n(Reglas y lógica interna del sistema)" as MOTOR {
+    package "Seguridad y Acceso"              as M1 { [Verificación de identidad y permisos]   }
+    package "Procesamiento de Medicamentos"   as M2 { [Registro, edición y estado del stock]   }
+    package "Procesamiento de Inventario"     as M3 { [Evaluación de existencias y vencimientos]}
+    package "Gestión de Alertas"              as M4 { [Clasificación y envío de notificaciones] }
+    package "Inteligencia Artificial"         as M5 { [Predicción de agotamiento y tendencias]  }
+    package "Elaboración de Reportes"         as M6 { [Cálculo de indicadores y resúmenes]      }
+    package "Administración del Personal"     as M7 { [Gestión de roles y registro de acciones] }
+
+    M1 -[hidden]down-> M2
+    M2 -[hidden]down-> M3
+    M3 -[hidden]down-> M4
+    M4 -[hidden]down-> M5
+    M5 -[hidden]down-> M6
+    M6 -[hidden]down-> M7
+  }
+
+  ' ═══════════════════════════════════════════
+  '  BLOQUE 3 — Almacén
+  ' ═══════════════════════════════════════════
+  package "Almacén Central de Información\n(Datos guardados de forma segura)" as BD {
+    package "Medicamentos y Lotes"  as B1 { [Fichas, precios y códigos]          }
+    package "Usuarios y Permisos"   as B2 { [Cuentas del personal y roles]       }
+    package "Alertas e Historial"   as B3 { [Notificaciones y registro de acciones]}
+    package "Datos de Análisis"     as B4 { [Movimientos y proyecciones de demanda]}
+
+    B1 -[hidden]down-> B2
+    B2 -[hidden]down-> B3
+    B3 -[hidden]down-> B4
+  }
+
+}
+
+' ── Forzar los 3 bloques en columna vertical ──────────────
+UI    -[hidden]down-> MOTOR
+MOTOR -[hidden]down-> BD
+
+' ── Relaciones funcionales ────────────────────────────────
+UI    ..> MOTOR : el personal realiza acciones\ny el sistema las procesa
+MOTOR ..> BD    : el sistema consulta\ny guarda información
+MOTOR ..> UI    : el sistema devuelve\nlos resultados procesados
+
+@enduml

@@ -1,0 +1,97 @@
+@startuml Secuencia CU003 MOPGIMED
+
+title "Diagrama de Secuencia — CU003: Buscar Medicamento con IA\nMOPGIMED · Sistema Inteligente de Inventario Farmacéutico"
+
+autonumber
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceArrowColor #B91C1C
+skinparam sequenceArrowThickness 1.5
+skinparam sequenceLifeLineBorderColor #B91C1C
+skinparam sequenceGroupBorderColor #B91C1C
+skinparam sequenceGroupBackgroundColor #FFF5F5
+skinparam sequenceGroupFontStyle Bold
+skinparam noteFontSize 9
+skinparam noteBackgroundColor #FFFBEB
+skinparam noteBorderColor #B45309
+
+skinparam actor {
+  BackgroundColor #FFF1F2
+  BorderColor #B91C1C
+  FontColor #7F1D1D
+  FontStyle Bold
+}
+
+skinparam participant {
+  BackgroundColor #FFFFFF
+  BorderColor #64748B
+  FontColor #1E293B
+  FontSize 10
+}
+
+skinparam box {
+  FontStyle Bold
+  FontSize 11
+}
+
+actor "Personal Autorizado\n(Farmacia / Jefatura)" as ACTOR
+
+box "Frontera — Pantallas que ve el personal" #EFF6FF
+  participant "Buscador Inteligente\nde Medicamentos" as B1
+  participant "Aviso: Sin\nResultados" as B3
+  participant "Panel de Resultados\ncon Analisis IA" as B2
+end box
+
+box "Control — Procesos internos del sistema" #FFFBEB
+  participant "Motor de Busqueda\nInteligente" as C1
+  participant "Analizador de\nTendencias y Demanda" as C2
+  participant "Generador de Alertas\ny Recomendaciones" as C3
+end box
+
+box "Entidad — Informacion guardada" #ECFDF5
+  participant "Fichas de\nMedicamentos" as E1
+  participant "Historial de\nMovimientos y Consumo" as E2
+  participant "Proyecciones y\nAlertas de la IA" as E3
+end box
+
+ACTOR -> B1 : Ingresa nombre, categoria\no laboratorio a buscar
+B1 -> C1 : Envia el texto\nde busqueda
+C1 -> E1 : Busca en las fichas\nde medicamentos
+E1 --> C1 : Devuelve los medicamentos\nque coinciden
+
+alt No se encontraron medicamentos
+  C1 -> B3 : No hay resultados\npara esa busqueda
+  B3 --> ACTOR : Muestra el aviso,\nel personal intenta con otro termino
+
+else Se encontraron medicamentos
+  note over C1, C2 : El sistema activa la Inteligencia\nArtificial para enriquecer los resultados
+  C1 -> C2 : Pasa los medicamentos encontrados\npara analizar su comportamiento
+  C2 -> E2 : Estudia el historial de consumo\ny movimientos de cada medicamento
+  E2 --> C2 : Devuelve tendencias y datos\nde consumo por periodo
+
+  note over C2 : La IA calcula tendencia de consumo,\nprediccion de demanda futura\ny dias estimados de stock restante
+
+  C2 -> C3 : Entrega el analisis para\ngenerar alertas y recomendaciones
+  C3 -> E3 : Guarda las proyecciones\ny alertas calculadas
+  E3 --> C3 : Confirma que las predicciones\nquedaron guardadas
+
+  group Presentacion de resultados al personal
+    C2 -> B2 : Envia resultados\ncon indicadores IA
+    B2 --> ACTOR : Muestra medicamentos con\ntendencia y dias de stock
+
+    note right of ACTOR
+      El personal puede ver:
+      - Stock actual y estado
+      - Tendencia de consumo
+      - Prediccion de demanda
+      - Dias estimados de stock
+      - Alertas de reabastecimiento
+    end note
+
+    C3 -> B2 : Agrega alertas y\nrecomendaciones automaticas
+    B2 --> ACTOR : El personal ve las sugerencias:\nque pedir y cuando hacerlo
+  end
+end
+
+@enduml
