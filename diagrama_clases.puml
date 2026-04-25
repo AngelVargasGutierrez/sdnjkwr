@@ -1,0 +1,289 @@
+@startuml DiagramaClases MOPGIMED
+
+title "Diagrama de Clases — MOPGIMED\nSistema Inteligente de Inventario Farmacéutico"
+
+top to bottom direction
+
+skinparam backgroundColor    #FFFFFF
+skinparam shadowing          false
+skinparam defaultFontName    Segoe UI
+skinparam defaultFontSize    10
+skinparam ArrowColor         #B91C1C
+skinparam ArrowThickness     1.5
+skinparam ArrowFontSize      9
+skinparam ArrowFontColor     #475569
+
+skinparam class {
+  BackgroundColor            #FFFFFF
+  BorderColor                #64748B
+  HeaderBackgroundColor      #1E293B
+  FontColor                  #EEEEEE
+  AttributeFontColor         #1E293B
+  AttributeFontSize          9
+  StereotypeFontColor        #94A3B8
+}
+
+skinparam enum {
+  BackgroundColor            #FFF7ED
+  BorderColor                #EA580C
+  HeaderBackgroundColor      #EA580C
+  FontColor                  #FFFFFF
+  AttributeFontColor         #7C2D12
+}
+
+skinparam package {
+  BorderColor                #94A3B8
+  BackgroundColor            #F8FAFC
+  FontStyle                  Bold
+  FontSize                   12
+  FontColor                  #334155
+}
+
+' ══════════════════════════════════════════════════════
+'  ENUMERACIONES
+' ══════════════════════════════════════════════════════
+
+enum EstadoStock {
+  Normal
+  Bajo
+  Critico
+}
+
+enum EstadoUsuario {
+  Activo
+  Inactivo
+}
+
+enum RolUsuario {
+  admin
+  farmacia
+  jefatura
+}
+
+enum PrioridadAlerta {
+  High
+  Low
+}
+
+enum PrioridadPrediccion {
+  Alta
+  Media
+  Baja
+}
+
+' ══════════════════════════════════════════════════════
+'  PAQUETE 1: Acceso al Sistema
+' ══════════════════════════════════════════════════════
+package "Acceso al Sistema" as PKG_AUTH #EFF6FF {
+
+  class Usuario {
+    - id            : int
+    - username      : String
+    - password      : String
+    - role          : RolUsuario
+    - name          : String
+    - roleLabel     : String
+    - email         : String
+    - estado        : EstadoUsuario
+    - createdAt     : Date
+    ==
+    + findByCredentials(username, password) : Usuario
+    + findAll() : List<Usuario>
+    + getEstado(id) : EstadoUsuario
+    + updateEstado(id, estado) : void
+  }
+
+}
+
+' ══════════════════════════════════════════════════════
+'  PAQUETE 2: Gestión de Medicamentos
+' ══════════════════════════════════════════════════════
+package "Gestion de Medicamentos" as PKG_MED #ECFDF5 {
+
+  class Medicamento {
+    - id            : int
+    - codigo        : String
+    - nombre        : String
+    - laboratorio   : String
+    - lote          : String
+    - stock         : int
+    - stockMin      : int
+    - costoUnit     : decimal
+    - precioVenta   : decimal
+    - vencimiento   : Date
+    - rSanitario    : String
+    - estado        : EstadoStock
+    - categoria     : String
+    ==
+    + findAll() : List<Medicamento>
+    + findById(id) : Medicamento
+    + create(data) : Medicamento
+    + update(id, data) : Medicamento
+    + remove(id) : void
+    + getLaboratorios() : List<String>
+    + getCategorias() : List<String>
+    + calcEstado(stock, stockMin) : EstadoStock
+  }
+
+}
+
+' ══════════════════════════════════════════════════════
+'  PAQUETE 3: Alertas y Notificaciones
+' ══════════════════════════════════════════════════════
+package "Alertas y Notificaciones" as PKG_ALERT #FFF1F2 {
+
+  class Notificacion {
+    - id            : int
+    - tipo          : String
+    - titulo        : String
+    - descripcion   : String
+    - fecha         : String
+    - color         : String
+    - leida         : boolean
+    - prioridad     : PrioridadAlerta
+    ==
+    + findAll() : List<Notificacion>
+    + marcarLeida(id) : void
+    + marcarTodas() : void
+  }
+
+  class Alerta {
+    - id            : int
+    - titulo        : String
+    - descripcion   : String
+    - fecha         : String
+    - color         : String
+  }
+
+}
+
+' ══════════════════════════════════════════════════════
+'  PAQUETE 4: Historial
+' ══════════════════════════════════════════════════════
+package "Historial de Actividad" as PKG_HIST #FFFBEB {
+
+  class HistorialAccion {
+    - id            : int
+    - fecha         : String
+    - usuario       : String
+    - accion        : String
+    - modulo        : String
+    - detalle       : String
+    ==
+    + getHistorial() : List<HistorialAccion>
+  }
+
+}
+
+' ══════════════════════════════════════════════════════
+'  PAQUETE 5: Reportes
+' ══════════════════════════════════════════════════════
+package "Reportes" as PKG_REP #F0FDF4 {
+
+  class ResumenInventario {
+    - totalProductos     : int
+    - valorInventario    : decimal
+    - valorVenta         : decimal
+    - gananciaEstimada   : decimal
+    - productosCriticos  : int
+    - productosBajo      : int
+    - porVencer          : int
+    ==
+    + getResumen() : ResumenInventario
+  }
+
+  class CategoriaMedicamento {
+    - categoria          : String
+    - cantidad           : int
+    - stockTotal         : int
+    - valorCosto         : decimal
+    - valorVenta         : decimal
+    ==
+    + getPorCategoria() : List<CategoriaMedicamento>
+    + getValorPorCategoria() : List<CategoriaMedicamento>
+  }
+
+}
+
+' ══════════════════════════════════════════════════════
+'  PAQUETE 6: Análisis e Inteligencia Artificial
+' ══════════════════════════════════════════════════════
+package "Analisis e Inteligencia Artificial" as PKG_IA #F5F3FF {
+
+  class MovimientoSemana {
+    - id            : int
+    - dia           : String
+    - entradas      : int
+    - salidas       : int
+  }
+
+  class ComparativaMensual {
+    - id            : int
+    - mes           : String
+    - ventas        : int
+    - compras       : int
+    ==
+    + getComparativaMensual() : List<ComparativaMensual>
+  }
+
+  class PrediccionDemanda {
+    - id            : int
+    - mes           : String
+    - realVal       : int
+    - prediccion    : int
+    ==
+    + getPrediccionDemanda() : List<PrediccionDemanda>
+  }
+
+  class Tendencia {
+    - id            : int
+    - categoria     : String
+    - cambio        : int
+    - positivo      : boolean
+    ==
+    + getTendencias() : List<Tendencia>
+  }
+
+  class PrediccionCritica {
+    - id            : int
+    - nombre        : String
+    - stockActual   : int
+    - fechaPredicha : String
+    - ordenar       : int
+    - prioridad     : PrioridadPrediccion
+    ==
+    + getPrediccionesCriticas() : List<PrediccionCritica>
+  }
+
+}
+
+' ══════════════════════════════════════════════════════
+'  RELACIONES
+' ══════════════════════════════════════════════════════
+
+' Acceso
+Usuario          "1"    -->    "0..*"   HistorialAccion      : registra >
+
+' Medicamento → Alertas y Notificaciones
+Medicamento      "1"    -->    "0..*"   Notificacion         : genera >
+Medicamento      "1"    -->    "0..*"   Alerta               : genera >
+
+' Medicamento → Reportes
+Medicamento      "0..*"  ..>           ResumenInventario     : alimenta
+Medicamento      "0..*"  ..>           CategoriaMedicamento  : agrupa por categoria
+
+' Medicamento → IA
+Medicamento      "0..*"  ..>           MovimientoSemana      : registra movimientos
+Medicamento      "0..*"  ..>           ComparativaMensual    : genera comparativa
+Medicamento      "0..*"  ..>           PrediccionDemanda     : proyecta demanda
+Medicamento      "0..*"  ..>           Tendencia             : analiza por categoria
+Medicamento      "1"    -->    "0..*"   PrediccionCritica     : IA predice desabasto >
+
+' Enums
+Usuario          ..>                   RolUsuario
+Usuario          ..>                   EstadoUsuario
+Medicamento      ..>                   EstadoStock
+Notificacion     ..>                   PrioridadAlerta
+PrediccionCritica ..>                  PrioridadPrediccion
+
+@enduml
